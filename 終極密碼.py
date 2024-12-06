@@ -90,8 +90,7 @@ def display_game_records(records):
     print(f"{'序號':<4}{'玩家':^14}{'答案':^8}{'結果':<8}{'次數':<8}")
     print("=" * 42)
     for idx, record in enumerate(records, start=1):
-        print(f"{idx:<4}{record['名稱']:^14}{record['答案']:^8}{record['結果']:<8}{record['次數']:<8}"
-              )
+        print(f"{idx:<4}{record['名稱']:^14}{record['答案']:^8}{record['結果']:<8}{record['次數']:<8}")
 
 
 #  遊戲流程
