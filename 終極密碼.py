@@ -9,8 +9,8 @@ game_records = deque(maxlen=10)  # 用於保存遊戲紀錄，最多10筆
 def is_valid_name(name):
     if len(name) > 50:      # 若名稱過長，直接拒絕
         return False
-    # 定義玩家名稱允許的範圍、長度 1 到 20
-    pattern = re.compile("^[A-Za-z0-9\u4e00-\u9fff_.\/]{1,20}$")
+    # 定義玩家名稱允許的範圍，長度 1 到 20
+    pattern = re.compile("^[A-Za-z0-9\u4e00-\u9fff_.\\/]{1,20}$")
     return bool(pattern.match(name)) and len(name.strip()) > 0
 
 
@@ -30,16 +30,13 @@ def get_valid_guess(guess_attempt, skip_count, max_skips=10):
                     return None, skip_count, True
                 continue
 
-            # 輸入有效數字範圍
             case _ if guess_input.isdigit() and 1 <= int(guess_input) <= 50:
                 return int(guess_input), skip_count, False
 
-            # 數字太長或不在範圍內
             case _ if guess_input.isdigit():
                 print("請輸入 1 到 50 範圍內的數字。")
                 continue
 
-            # 無效輸入
             case _:
                 print("無效輸入！請輸入一個有效的數字。")
 
@@ -87,11 +84,11 @@ def play_game():
 # 格式化遊戲紀錄
 def display_game_records(records):
     print('\n===========================\n遊戲紀錄（最近 10 筆）：')
-    print(f"{'序號':<4}{'玩家':^14}{'答案':<8}{'結果':<8}{'次數':<8}")
+    print(f"{'序號':<4}{'玩家':^14}{'答案':^8}{'結果':<8}{'次數':<8}")
     print("=" * 42)
     for idx, record in enumerate(records, start=1):
         print(
-            f"{idx:<4}{record['名稱']:^14}{record['答案']:<8}{record['結果']:<8}{record['次數']:<8}")
+            f"{idx:<4}{record['名稱']:^14}{record['答案']:^8}{record['結果']:<8}{record['次數']:<8}")
 
 
 #  遊戲流程
@@ -132,7 +129,7 @@ def main():
 
         total_games_played += 1
 
-    if total_games_played >= max_games:
+    if total_games_played >= max_games:  # 遊戲次數上限
         print("📢 無與倫比的成就！您已達到遊戲次數上限，謝謝遊玩！\n下次再見 👋")
 
 
