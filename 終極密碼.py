@@ -10,7 +10,7 @@ def is_valid_name(name):
     if len(name) > 50:      # 若名稱過長，直接拒絕
         return False
     # 定義玩家名稱允許的範圍、長度 1 到 20
-    pattern = re. compile("^[A-Za-z0-9\u4e00-\u9fff_.\/]{1,20}$")
+    pattern = re.compile("^[A-Za-z0-9\u4e00-\u9fff_.\/]{1,20}$")
     return bool(pattern.match(name)) and len(name.strip()) > 0
 
 
@@ -84,6 +84,16 @@ def play_game():
     return answer, correct, guess_attempt if correct else None
 
 
+# 格式化遊戲紀錄
+def display_game_records(records):
+    print('\n===========================\n遊戲紀錄（最近 10 筆）：')
+    print(f"{'序號':<4}{'玩家':<12}{'答案':<8}{'結果':<8}{'次數':<8}")
+    print("=" * 42)
+    for idx, record in enumerate(records, start=1):
+        print(
+            f"{idx:<4}{record['名稱']:<12}{record['答案']:<8}{record['結果']:<8}{record['次數']:<8}")
+
+
 #  遊戲流程
 def main():
     total_games_played = 0
@@ -112,10 +122,7 @@ def main():
         game_records.append(result)
 
         # 顯示遊戲紀錄
-        print('\n===========================\n遊戲紀錄（最近 10 筆）：')
-        for idx, record in enumerate(game_records, start=1):
-            print(f"{idx}. 玩家: {record['名稱']} | 答案: {record['答案']} | 結果: {
-                  record['結果']} | 次數: {record['次數']}")
+        display_game_records(game_records)
 
         # 是否再玩一次
         play_again = input("\n是否想要再玩一次？ (y/n): ").strip().lower()
