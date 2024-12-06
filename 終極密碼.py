@@ -2,7 +2,7 @@ import random  # 引入隨機數
 import re  # 引入正則表達式
 from collections import deque  # 引入雙端隊列
 
-game_records = deque(maxlen=10)  # 用於保存遊戲紀錄，最多10筆
+game_records = deque(maxlen=10)  # 初始化用於保存遊戲紀錄，最多10筆
 
 
 #  檢查玩家名稱
@@ -14,7 +14,7 @@ def is_valid_name(name):
     return bool(pattern.match(name)) and len(name.strip()) > 0
 
 
-#  處理輸入和猜測
+#  處理猜測的輸入
 def get_valid_guess(guess_attempt, skip_count, max_skips=10):
     while True:
         guess_input = input(f'請猜測第 {guess_attempt} 次的數字：').strip()
@@ -30,18 +30,21 @@ def get_valid_guess(guess_attempt, skip_count, max_skips=10):
                     return None, skip_count, True
                 continue
 
+            # 輸入有效數字範圍
             case _ if guess_input.isdigit() and 1 <= int(guess_input) <= 50:
                 return int(guess_input), skip_count, False
 
+            # 數字太長或不在範圍內
             case _ if guess_input.isdigit():
                 print("請輸入 1 到 50 範圍內的數字。")
                 continue
 
+            # 無效輸入
             case _:
                 print("無效輸入！請輸入一個有效的數字。")
 
 
-#  遊戲玩法
+#  進行遊戲
 def play_game():
     print('\n=============================')
     print("您好，歡迎來玩終極密碼！")
@@ -81,14 +84,14 @@ def play_game():
     return answer, correct, guess_attempt if correct else None
 
 
-# 格式化遊戲紀錄
+#  顯示遊戲紀錄
 def display_game_records(records):
     print('\n===========================\n遊戲紀錄（最近 10 筆）：')
     print(f"{'序號':<4}{'玩家':^14}{'答案':^8}{'結果':<8}{'次數':<8}")
     print("=" * 42)
     for idx, record in enumerate(records, start=1):
-        print(
-            f"{idx:<4}{record['名稱']:^14}{record['答案']:^8}{record['結果']:<8}{record['次數']:<8}")
+        print(f"{idx:<4}{record['名稱']:^14}{record['答案']:^8}{record['結果']:<8}{record['次數']:<8}"
+              )
 
 
 #  遊戲流程
@@ -110,15 +113,14 @@ def main():
 
         answer, correct, guess_attempt = play_game()
 
-        result = {
+        result = {  # 用字典整理該局遊戲紀錄
             "名稱": player_name,
             "答案": answer,
             "結果": "答對" if correct else "答錯",
             "次數": guess_attempt if correct else "N/A"
         }
-        game_records.append(result)
+        game_records.append(result)  # 更新遊戲紀錄
 
-        # 顯示遊戲紀錄
         display_game_records(game_records)
 
         # 是否再玩一次
@@ -129,7 +131,7 @@ def main():
 
         total_games_played += 1
 
-    if total_games_played >= max_games:  # 遊戲次數上限
+    if total_games_played >= max_games:  # 檢查遊戲局數
         print("📢 無與倫比的成就！您已達到遊戲次數上限，謝謝遊玩！\n下次再見 👋")
 
 
