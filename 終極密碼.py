@@ -1,137 +1,122 @@
-import random  # 引入隨機數
-import re  # 引入正則表達式
-from collections import deque  # 引入雙端隊列
+import random
+import re
+from collections import deque
 
-game_records = deque(maxlen=10)  # 初始化用於保存遊戲紀錄，最多10筆
+# 遊戲常量
+MAX_RECORDS = 10
+MAX_GAMES = 50
+MAX_NAME_LENGTH = 20
+NUMBER_RANGE = (1, 50)
+MAX_SKIPS = 10
+MAX_ATTEMPTS = 5
+
+# 遊戲紀錄
+game_records = deque(maxlen=MAX_RECORDS)
 
 
-#  檢查玩家名稱
+def normalize_title(title):
+    """標準化名稱：移除多餘空白"""
+    return title.strip().replace(" ", "")
+
+
 def is_valid_name(name):
-    if len(name) > 50:      # 若名稱過長，直接拒絕
+    """檢查名稱是否合法"""
+    if len(name) > MAX_NAME_LENGTH:
         return False
-    # 定義玩家名稱允許的範圍，長度 1 到 20
-    pattern = re.compile("^[A-Za-z0-9\u4e00-\u9fff_.\\/]{1,20}$")
-    return bool(pattern.match(name)) and len(name.strip()) > 0
+    pattern = re.compile(r"^[A-Za-z0-9\u4e00-\u9fff_.\\/]+$")
+    return bool(pattern.match(name))
 
 
-#  處理猜測的輸入
-def get_valid_guess(guess_attempt, skip_count, max_skips=10):
+def get_valid_guess(attempt, skips, max_skips):
+    """獲取有效的玩家猜測"""
     while True:
-        guess_input = input(f'請猜測第 {guess_attempt} 次的數字：').strip()
-
-        match guess_input:
-            # 玩家按下 Enter 而未輸入內容
+        guess = input(f"請猜測第 {attempt} 次的數字：").strip()
+        match guess:
             case "":
-                skip_count += 1
-                print(f"您跳過了第 {skip_count} 次猜測！")
-
-                if skip_count > max_skips:
-                    print("您已達到跳過次數上限，遊戲結束！🚫")
-                    return None, skip_count, True
+                skips += 1
+                print(f"您跳過了第 {skips} 次猜測！")
+                if skips > max_skips:
+                    print("🚫 已達跳過次數上限，遊戲結束！")
+                    return None, skips, True
                 continue
-
-            # 輸入有效數字範圍
-            case _ if guess_input.isdigit() and 1 <= int(guess_input) <= 50:
-                return int(guess_input), skip_count, False
-
-            # 數字太長或不在範圍內
-            case _ if guess_input.isdigit():
-                print("請輸入 1 到 50 範圍內的數字。")
-                continue
-
-            # 無效輸入
+            case _ if guess.isdigit() and NUMBER_RANGE[0] <= int(guess) <= NUMBER_RANGE[1]:
+                return int(guess), skips, False
             case _:
-                print("無效輸入！請輸入一個有效的數字。")
+                print(f"請輸入 {NUMBER_RANGE[0]} 到 {NUMBER_RANGE[1]} 範圍內的有效數字。")
 
 
-#  進行遊戲
 def play_game():
-    print('\n=============================')
-    print("您好，歡迎來玩終極密碼！")
-    print("\n範圍是 1 到 50，您有 5 次機會！")
-    # 隨機生成答案，包含1和50
-    answer = random.randint(1, 50)
+    """進行遊戲"""
+    print("\n=============================")
+    print("歡迎來玩終極密碼！")
+    print(f"範圍是 {NUMBER_RANGE[0]} 到 {NUMBER_RANGE[1]}，您有 {MAX_ATTEMPTS} 次機會！")
 
-    # 初始化遊戲
+    answer = random.randint(*NUMBER_RANGE)
     correct = False
-    guess_attempt = 0
-    skip_count = 0
+    skips = 0
 
-    for guessChance in range(5):
-        guess_attempt = guessChance + 1
-
-        # 獲取有效的猜測
-        guess, skip_count, force_end = get_valid_guess(
-            guess_attempt, skip_count)
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        guess, skips, force_end = get_valid_guess(attempt, skips, MAX_SKIPS)
         if force_end:
-            return answer, False, guess_attempt  # 強制結束遊戲，返回結果
+            return answer, False, attempt
 
-        # 給出提示
         match (guess < answer, guess > answer, guess == answer):
             case (False, False, True):
-                print("Bingo！您答對了 🎉")
+                print("🎉 Bingo！您答對了！")
                 correct = True
                 break
             case (True, False, False):
-                print('可惜猜錯了！答案比這個大哦。')
+                print("答案比這個大哦！")
             case (False, True, False):
-                print('可惜猜錯了！答案比這個小哦。')
+                print("答案比這個小哦！")
 
     if not correct:
-        print("\nGame Over！💀 遊戲結束了...正確答案是", answer)
+        print(f"💀 遊戲結束！正確答案是 {answer}")
 
-    # 返回遊戲結果
-    return answer, correct, guess_attempt if correct else None
+    return answer, correct, attempt if correct else None
 
 
-#  顯示遊戲紀錄
 def display_game_records(records):
-    print('\n===========================\n遊戲紀錄（最近 10 筆）：')
+    """顯示遊戲紀錄"""
+    print("\n===========================")
+    print("遊戲紀錄（最近 10 筆）：")
     print(f"{'序號':<4}{'玩家':^14}{'答案':^8}{'結果':<8}{'次數':<8}")
     print("=" * 42)
     for idx, record in enumerate(records, start=1):
         print(f"{idx:<4}{record['名稱']:^14}{record['答案']:^8}{record['結果']:<8}{record['次數']:<8}")
 
 
-#  遊戲流程
 def main():
+    """主程式入口"""
     total_games_played = 0
-    max_games = 50  # 限制最多玩 50 局
 
-    while total_games_played < max_games:
-        # 要求玩家輸入名稱，並檢查是否合法
+    while total_games_played < MAX_GAMES:
         while True:
-            print("請輸入您的名稱：（長度最多 20字）")
-            player_name = input().strip()
-            player_name = player_name.replace(" ", "")  # 去除多餘的空格
+            player_name = normalize_title(input("請輸入您的名稱："))
             if is_valid_name(player_name):
-                break  # 名稱合法
-            else:
-                # 名稱不合法
-                print("不能用這個名字喔！請輸入有效的名稱。（只能包含字母、數字、中文、底線、點和斜線）")
+                break
+            print("⚠️ 無效名稱！請輸入有效名稱（限字母、數字、中文、底線等）。")
 
-        answer, correct, guess_attempt = play_game()
+        answer, correct, attempts = play_game()
 
-        result = {  # 用字典整理該局遊戲紀錄
+        record = {
             "名稱": player_name,
             "答案": answer,
             "結果": "答對" if correct else "答錯",
-            "次數": guess_attempt if correct else "N/A"
+            "次數": attempts if correct else "N/A"
         }
-        game_records.append(result)  # 更新遊戲紀錄
+        game_records.append(record)
 
         display_game_records(game_records)
 
-        # 是否再玩一次
-        play_again = input("\n是否想要再玩一次？ (y/n): ").strip().lower()
-        if play_again != 'y':
+        if input("\n是否再玩一次？(y/n): ").strip().lower() != 'y':
             print("\n謝謝遊玩！下次再見 👋")
             break
 
         total_games_played += 1
 
-    if total_games_played >= max_games:  # 檢查遊戲局數
-        print("📢 無與倫比的成就！您已達到遊戲次數上限，謝謝遊玩！\n下次再見 👋")
+    if total_games_played >= MAX_GAMES:
+        print("🎉 您已達到遊戲次數上限，感謝遊玩！")
 
 
 if __name__ == '__main__':
