@@ -21,7 +21,7 @@ def is_valid_name(name):
     """檢查名稱是否合法"""
     if len(name) > MAX_NAME_LENGTH:
         return False
-    pattern = re.compile(r"^[A-Za-z0-9一-鿿_.\\/]+$")
+    pattern = re.compile(r"^[A-Za-z0-9\u4e00-\u9fff_.\\/]+$")
     return bool(pattern.match(name))
 
 def get_valid_guess(attempt, skips, max_skips):
