@@ -4,7 +4,7 @@ from collections import deque
 
 # 遊戲常量
 MAX_RECORDS = 10
-MAX_GAMES = 50
+MAX_GAMES = 100
 MAX_NAME_LENGTH = 20
 NUMBER_RANGE = (1, 50)
 MAX_SKIPS = 10
