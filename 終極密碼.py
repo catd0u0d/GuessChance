@@ -105,7 +105,7 @@ def main():
 
         display_game_records(game_records)
 
-        if input("\n是否再玩一次？Play Again？(y/n): ").strip().lower() != 'y' or 'yes':
+        if input("\n是否再玩一次？Play Again？(y/n): ").strip().lower() != 'y' and 'yes':
             print("\n謝謝遊玩！下次再見 Seeya 👋")
             break
 
